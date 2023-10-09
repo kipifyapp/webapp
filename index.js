@@ -43,8 +43,8 @@ const app = express();
 
 app
 .set("view engine", "ejs")
-.set("views", `${__dirname}\\views`)
-.use(express.static(`${__dirname}\\public`))
+.set("views", `${__dirname}/views`)
+.use(express.static(`${__dirname}/public`))
 .use(cors())
 .use(cookieParser());
 
