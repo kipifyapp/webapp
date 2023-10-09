@@ -1,5 +1,5 @@
-const express = require("express"); // Express web server framework
-const request = require("request"); // "Request" library
+const express = require("express");
+const request = require("request");
 const cors = require("cors");
 const querystring = require("querystring");
 const cookieParser = require("cookie-parser");

@@ -17,6 +17,7 @@
     "express": "^4.18.2",
     "node-fetch": "^2.7.0",
     "querystring": "^0.2.1",
+    "request": "^2.88.2",
     "url": "^0.11.3"
   },
   "devDependencies": {
