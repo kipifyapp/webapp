@@ -43,7 +43,8 @@ const app = express();
 
 app
 .set("view engine", "ejs")
-.use(express.static("static"))
+.set("views", "./views")
+.use(express.static("./public"))
 .use(cors())
 .use(cookieParser());
 
