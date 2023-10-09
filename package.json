@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vercel dev",
     "build": "vercel build",
-    "tailwind": "npx tailwindcss -o static/styles/build.css --minify"
+    "tailwind": "npx tailwindcss -o public/styles/build.css --minify"
   },
   "author": "Soham Borate",
   "license": "MIT",
