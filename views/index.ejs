@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<%- include("components/head"); %>
+
+<body class="bg-neutral-950 text-white">
+
+<%- include("components/navbar"); %>
+
+<div class="p-6 mt-6">
+  <div class="p-3 flex justify-center items-center sm:text-6xl md:text-6xl lg:text-6xl xl:text-6xl">
+    Kipify
+  </div>
+  <div class="p-3 flex justify-center items-center sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl">
+    Recommends you new songs on Spotify you (probably) haven't heard before
+  </div>
+  <% if (login) { %>
+    <div class="p-3 flex justify-center items-center sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl">
+      <iframe
+        class="h-96 sm:w-3/5 border-lg"
+        src="https://open.spotify.com/embed/playlist/<%= playlist %>?utm_source=generator"
+        frameBorder="0"
+        allowfullscreen=""
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"
+      >
+      </iframe>
+    </div>
+  <% } else { %>
+    <div class="p-3 flex justify-center items-center sm:text-3xl md:text-3xl lg:text-3xl xl:text-3xl">
+      <div class="p-3 border-2 border-white rounded-lg hover:bg-green-500 hover:border-green-500 hover:text-neutral-950">
+          <a href="/login">
+            Create
+          </a>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+</body>
+</html>
