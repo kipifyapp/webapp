@@ -54,6 +54,8 @@ async function get_recommendations(access_token, query) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
+    // console.log(response);
+
     return await response.json();
 }
 
@@ -72,17 +74,6 @@ async function get_artist(artist_id, access_token) {
 async function get_artists(artist_ids, access_token) {
     const response = await fetch(
         `https://api.spotify.com/v1/artists?ids=${artist_ids.join("%2C")}`, {
-        method: "GET",
-        headers: { "Authorization": `Bearer ${access_token}` }
-    });
-
-    return await response.json();
-}
-
-// singular: one artists
-async function get_artist_top_tracks(artist_id, access_token) {
-    const response = await fetch(
-        `https://api.spotify.com/v1/artists/${artist_id}/top-tracks`, {
         method: "GET",
         headers: { "Authorization": `Bearer ${access_token}` }
     });
@@ -140,16 +131,6 @@ async function get_user_profile(access_token) {
     return await response.json();
 }
 
-async function check_user_saved_tracks(track_ids, access_token) {
-    const response = await fetch(
-        `https://api.spotify.com/v1/me/tracks/contains?ids=${track_ids.join("%2C")}`, {
-        method: "GET",
-        headers: { "Authorization": `Bearer ${access_token}` }
-    });
-
-    return await response.json();
-}
-
 async function create_playlist(user_id, access_token, name, description) {
     const response = await fetch(
         `https://api.spotify.com/v1/users/${user_id}/playlists`, {
@@ -181,6 +162,26 @@ async function add_items_to_playlist(playlist_id, access_token, items) {
     return await response.json();
 }
 
+// Lover https://open.spotify.com/track/1dGr1c8CrMLDpV6mPbImSI
+// get_track("1dGr1c8CrMLDpV6mPbImSI", auth.access_token, (error, response, body) => {
+//     console.log("Get track 1dGr1c8CrMLDpV6mPbImSI")
+//     if (response.statusCode === 200) {
+//         console.log(body, "\n")
+//     } else {
+//         console.log(error, response.statusCode, "\n");
+//     }
+// });
+
+// Taylor Swift https://open.spotify.com/artist/06HL4z0CvFAxyc27GXpf02
+// get_artist("06HL4z0CvFAxyc27GXpf02", auth.access_token, (error, response, body) => {
+//     console.log("Get artist 06HL4z0CvFAxyc27GXpf02")
+//     if (response.statusCode === 200) {
+//         console.log(body, "\n")
+//     } else {
+//         console.log(error, response.statusCode, "\n");
+//     }
+// });
+
 module.exports = {
     get_track,
     get_tracks,
@@ -189,11 +190,9 @@ module.exports = {
     get_recommendations,
     get_artist,
     get_artists,
-    get_artist_top_tracks,
     get_top_items,
     get_all_top_items,
     get_user_profile,
-    check_user_saved_tracks,
     create_playlist,
     add_items_to_playlist
 }

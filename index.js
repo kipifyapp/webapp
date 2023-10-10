@@ -49,7 +49,7 @@ app
 .use(cookieParser());
 
 const stateKey = "spotify_auth_state";
-const scope = "user-read-private user-read-email user-library-read user-top-read playlist-modify-public playlist-modify-private";
+const scope = "user-read-private user-read-email user-top-read playlist-modify-public playlist-modify-private";
 
 const generate = require("./generator.js");
 
@@ -57,20 +57,16 @@ app.get("/", async function(req, res) {
     if ("access_token" in req.cookies) {
         const access_token = req.cookies.access_token;
         res.clearCookie("access_token");
-        const user = await get_user_profile(access_token);
-
-        const tracks = await generate(access_token);
-        if (!tracks) {
-            return res.render("index", { login: false });
-        }
-        const playlist = await create_playlist(
+        let user = await get_user_profile(access_token);
+        let playlist = await create_playlist(
             user.id,
             access_token,
             "My recommendation playlist",
             `Playlist created by Kipify for ${user.display_name}`,
         );
 
-        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
+        const tracks = await generate(access_token);
+        let add_items = await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
         // https://open.spotify.com/playlist/0DS1cECPXiQYEKIonlzq4L
         res.render("index", { login: true, playlist: playlist.id });
