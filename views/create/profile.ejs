@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include("components/head"); %>
+<%- include("../components/head"); %>
 
 <body class="bg-neutral-950 text-white">
 
-<%- include("components/navbar"); %>
+<%- include("../components/navbar"); %>
 
 <div class="p-6 mt-6">
   <div class="p-3 flex justify-center items-center sm:text-6xl md:text-6xl lg:text-6xl xl:text-6xl">
-    Kipify
+    Create from profile
   </div>
   <div class="p-3 flex justify-center items-center sm:text-2xl md:text-2xl lg:text-2xl xl:text-2xl">
-    Create a playlist of 50 new songs which you (probably) have not heard before
+    We will create a playlist of 50 new songs based on your profile
   </div>
   <div class="p-3 flex justify-center items-center sm:text-3xl md:text-3xl lg:text-3xl xl:text-3xl">
     <a class="p-3 border-2 border-white rounded-lg hover:bg-green-500 hover:border-green-500 hover:text-neutral-950"
       <% if (login) { %>
-        href="/create"
+        href="/generate/profile"
       <% } else { %>
-        href="/login?redirect=/create"
+        href="/login"
       <% } %>
     >
       Create
