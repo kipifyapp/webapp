@@ -56,31 +56,7 @@ const {
 
 app.get("/", async function(req, res) {
     if ("access_token" in req.cookies) {
-    //     const access_token = req.cookies.access_token;
-    //     res.clearCookie("access_token");
-    //     const user = await get_user_profile(access_token);
-
-    //     const tracks = await generate(access_token);
-    //     if (!tracks) {
-    //         return res.render("index", { login: false });
-    //     }
-
-    //     const protocol = req.protocol; 
-    //     const host = req.hostname; 
-      
-    //     const fullUrl = `${protocol}://${host}/` 
-
-    //     const playlist = await create_playlist(
-    //         user.id,
-    //         access_token,
-    //         "My recommendation playlist",
-    //         `Playlist created by ${fullUrl} for ${user.display_name}`,
-    //     );
-
-    //     await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
-
-    //     // https://open.spotify.com/playlist/0DS1cECPXiQYEKIonlzq4L
-        res.render("index", { login: true, playlist: "" });
+       res.render("index", { login: true });
     } else {
         res.render("index", { login: false });
     }
@@ -88,15 +64,21 @@ app.get("/", async function(req, res) {
 
 // create
 app.get("/create", async (req, res) => {
-    res.render("create", { login: false });
+    res.render("create");
 });
 
 app.get("/create/:mode", async (req, res) => {
     if ("access_token" in req.cookies) {
-        res.render(`create/${req.params.mode}`, { login: true, playlist: "" });
+        res.render(`create/${req.params.mode}`, { login: true });
     } else {
         res.render(`create/${req.params.mode}`, { login: false });
     }
+});
+
+// deliver
+
+app.get("/deliver/:id", async (req, res) => {
+    res.render(`deliver`, { playlist: req.params.id });
 });
 
 // generate
@@ -121,7 +103,7 @@ app.get("/generate/profile", async (req, res) => {
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
         // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
-        res.render("deliver", { login: true, playlist: playlist.id });
+        res.redirect(`/deliver/${playlist.id}`);
     } else {
         res.redirect("/login");
     }
@@ -172,7 +154,7 @@ app.get("/generate/tracks", async (req, res) => {
 
         // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
 
-        res.render("deliver", { login: true, playlist: playlist.id });
+        res.redirect(`/deliver/${playlist.id}`);
     } else {
         res.redirect("/login");
     }
@@ -243,9 +225,9 @@ app.get("/callback", async function(req, res) {
                 res.cookie("access_token", body.access_token, {
                     maxAge: 60 * 60 * 1000 // 1 hour
                 });
-                res.redirect("/");
+                res.redirect("/create");
             } else {
-                res.redirect("/");
+                res.render("error", { error: "Error while logging in, try again" });
             }
         });
     }
