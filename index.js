@@ -86,7 +86,6 @@ app.get("/deliver/:id", async (req, res) => {
 // generate
 
 app.get("/generate/profile", async (req, res) => {
-    console.log("profile");
     if ("access_token" in req.cookies) {
         const access_token = req.cookies.access_token;
         const user = await get_user_profile(access_token);
@@ -105,7 +104,6 @@ app.get("/generate/profile", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
         res.redirect(`/deliver/${playlist.id}`);
     } else {
         res.redirect("/login");
@@ -113,7 +111,6 @@ app.get("/generate/profile", async (req, res) => {
 });
 
 app.get("/generate/profile-v2", async (req, res) => {
-    console.log("profile-v2");
     if ("access_token" in req.cookies) {
         const access_token = req.cookies.access_token;
         const user = await get_user_profile(access_token);
@@ -132,17 +129,13 @@ app.get("/generate/profile-v2", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
         res.redirect(`/deliver/${playlist.id}`);
     } else {
         res.redirect("/login");
     }
 });
 
-// https://open.spotify.com/track/12FbZlYxIUv2rhB0oCQEhQ?si=d1ef5abe13d54760
-
 app.get("/generate/tracks", async (req, res) => {
-    console.log("tracks");
     if ("access_token" in req.cookies) {
         var trackIds = [];
 
@@ -183,8 +176,6 @@ app.get("/generate/tracks", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
-
         res.redirect(`/deliver/${playlist.id}`);
     } else {
         res.redirect("/login");
@@ -192,7 +183,6 @@ app.get("/generate/tracks", async (req, res) => {
 });
 
 app.get("/generate/tracks-v2", async (req, res) => {
-    console.log("tracks-v2");
     if ("access_token" in req.cookies) {
         var trackIds = [];
 
@@ -232,8 +222,6 @@ app.get("/generate/tracks-v2", async (req, res) => {
         );
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
-
-        // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
 
         res.redirect(`/deliver/${playlist.id}`);
     } else {

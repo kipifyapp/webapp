@@ -93,10 +93,6 @@ async function generate_from_profile_v2(access_token) {
     return recommendations;
 }
 
-// https://open.spotify.com/track/4MNMnV9EtG0uCWVmKboh2Z?si=5d9c8e0494c84deb
-// https://open.spotify.com/track/12FbZlYxIUv2rhB0oCQEhQ?si=684150eeaa6a4c8d
-// https://open.spotify.com/track/1w6pBU4jD7G5Z4XUpOYVCZ?si=2f7d792de20a41b2
-
 async function generate_from_tracks(access_token, tracks_seed, playlist) {
     if (!playlist) {
         playlist = [];
