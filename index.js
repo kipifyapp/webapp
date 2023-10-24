@@ -35,6 +35,34 @@ function generateRandomString(length) {
     return text;
 };
 
+// for spotify.link domains
+async function getHrefsFromLink(link) {
+    try {
+        const response = await fetch(
+            link, {
+            method: "GET",
+        });
+        const content = await response.text();
+        const hrefs = [];
+    
+        // i have no idea how regular expressions work, ChatGPT wrote this
+        const regex = /"https:\/\/open\.spotify\.com\/track\/[^"]+"/g;
+        const matches = content.match(regex);
+    
+        if (matches) {
+            matches.forEach(match => {
+                const href = match.replace(/"/g, ''); // Remove surrounding quotes
+                hrefs.push(href);
+            });
+        }
+    
+        return hrefs;
+    } catch (e) {
+        console.error(e);
+        return []
+    }
+}
+
 const app = express();
 
 app
@@ -137,15 +165,28 @@ app.get("/generate/profile-v2", async (req, res) => {
 
 app.get("/generate/tracks", async (req, res) => {
     if ("access_token" in req.cookies) {
+
         var trackIds = [];
 
-        req.query.tracks.map((v) => {
+        for (let i = 0; i < req.query.tracks.length; i++) {
+            const v = req.query.tracks[i];
             let parsed = url.parse(v);
-            if (!parsed.pathname) return;
-            parsed.pathname = parsed.pathname.split("/");
-            if (parsed.pathname[1] !== "track") return;
-            trackIds.push(parsed.pathname[2]);
-        });
+            if (parsed.hostname === "spotify.link") {
+                const hrefs = await getHrefsFromLink(parsed.href)
+                if (hrefs.length < 1) return;
+                parsed = url.parse(hrefs[0]);
+
+                if (!parsed.pathname) return;
+                parsed.pathname = parsed.pathname.split("/");
+                if (parsed.pathname[1] !== "track") return;
+                trackIds.push(parsed.pathname[2]);
+            } else if (parsed.hostname === "open.spotify.com") {
+                if (!parsed.pathname) return;
+                parsed.pathname = parsed.pathname.split("/");
+                if (parsed.pathname[1] !== "track") return;
+                trackIds.push(parsed.pathname[2]);
+            }
+        }
 
         // remove duplicates
         trackIds = trackIds.filter((track, index) => {
@@ -186,13 +227,25 @@ app.get("/generate/tracks-v2", async (req, res) => {
     if ("access_token" in req.cookies) {
         var trackIds = [];
 
-        req.query.tracks.map((v) => {
+        for (let i = 0; i < req.query.tracks.length; i++) {
+            const v = req.query.tracks[i];
             let parsed = url.parse(v);
-            if (!parsed.pathname) return;
-            parsed.pathname = parsed.pathname.split("/");
-            if (parsed.pathname[1] !== "track") return;
-            trackIds.push(parsed.pathname[2]);
-        });
+            if (parsed.hostname === "spotify.link") {
+                const hrefs = await getHrefsFromLink(parsed.href)
+                if (hrefs.length < 1) return;
+                parsed = url.parse(hrefs[0]);
+
+                if (!parsed.pathname) return;
+                parsed.pathname = parsed.pathname.split("/");
+                if (parsed.pathname[1] !== "track") return;
+                trackIds.push(parsed.pathname[2]);
+            } else if (parsed.hostname === "open.spotify.com") {
+                if (!parsed.pathname) return;
+                parsed.pathname = parsed.pathname.split("/");
+                if (parsed.pathname[1] !== "track") return;
+                trackIds.push(parsed.pathname[2]);
+            }
+        }
 
         // remove duplicates
         trackIds = trackIds.filter((track, index) => {
