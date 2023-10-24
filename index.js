@@ -49,7 +49,9 @@ const scope = "user-read-private user-read-email user-library-read user-top-read
 
 const {
     generate_from_profile,
-    generate_from_tracks
+    generate_from_profile_v2,
+    generate_from_tracks,
+    generate_from_tracks_v2
 } = require("./generator.js");
 
 // home
@@ -84,6 +86,7 @@ app.get("/deliver/:id", async (req, res) => {
 // generate
 
 app.get("/generate/profile", async (req, res) => {
+    console.log("profile");
     if ("access_token" in req.cookies) {
         const access_token = req.cookies.access_token;
         const user = await get_user_profile(access_token);
@@ -109,9 +112,37 @@ app.get("/generate/profile", async (req, res) => {
     }
 });
 
+app.get("/generate/profile-v2", async (req, res) => {
+    console.log("profile-v2");
+    if ("access_token" in req.cookies) {
+        const access_token = req.cookies.access_token;
+        const user = await get_user_profile(access_token);
+        const tracks = await generate_from_profile_v2(access_token);
+
+        const protocol = req.protocol; 
+        const host = req.hostname; 
+        const fullUrl = `${protocol}://${host}/` 
+
+        const playlist = await create_playlist(
+            user.id,
+            access_token,
+            "My recommendation playlist",
+            `Playlist created by ${fullUrl} for ${user.display_name}`,
+        );
+
+        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
+
+        // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
+        res.redirect(`/deliver/${playlist.id}`);
+    } else {
+        res.redirect("/login");
+    }
+});
+
 // https://open.spotify.com/track/12FbZlYxIUv2rhB0oCQEhQ?si=d1ef5abe13d54760
 
 app.get("/generate/tracks", async (req, res) => {
+    console.log("tracks");
     if ("access_token" in req.cookies) {
         var trackIds = [];
 
@@ -160,10 +191,64 @@ app.get("/generate/tracks", async (req, res) => {
     }
 });
 
+app.get("/generate/tracks-v2", async (req, res) => {
+    console.log("tracks-v2");
+    if ("access_token" in req.cookies) {
+        var trackIds = [];
+
+        req.query.tracks.map((v) => {
+            let parsed = url.parse(v);
+            if (!parsed.pathname) return;
+            parsed.pathname = parsed.pathname.split("/");
+            if (parsed.pathname[1] !== "track") return;
+            trackIds.push(parsed.pathname[2]);
+        });
+
+        // remove duplicates
+        trackIds = trackIds.filter((track, index) => {
+            let searchIndex = trackIds.findIndex((track2) => {
+                return track2 === track;
+            }); 
+            return searchIndex === index;
+        });
+
+        if (trackIds.length < 1 || trackIds.length > 5) {
+            return res.render("error", { error: "Nope." });
+        }
+
+        const access_token = req.cookies.access_token;
+        const user = await get_user_profile(access_token);
+        const tracks = await generate_from_tracks_v2(access_token, trackIds);
+
+        const protocol = req.protocol; 
+        const host = req.hostname; 
+        const fullUrl = `${protocol}://${host}/` 
+
+        const playlist = await create_playlist(
+            user.id,
+            access_token,
+            "My recommendation playlist",
+            `Playlist created by ${fullUrl} for ${user.display_name}`,
+        );
+
+        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
+
+        // https://open.spotify.com/playlist/1Y4IFBsjq8dEZ7C3MocDJs
+
+        res.redirect(`/deliver/${playlist.id}`);
+    } else {
+        res.redirect("/login");
+    }
+});
+
 // login
 
 app.get("/login", async (req, res) => {
-    res.render("login", { redirect: req.query.redirect });
+    if ("access_token" in req.cookies) {
+        res.redirect("/create");
+    } else {
+        res.render("login", { redirect: req.query.redirect });
+    }
 });
 
 // miscellaneous

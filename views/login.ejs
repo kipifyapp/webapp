@@ -16,7 +16,13 @@
       Login with Spotify
     </a>
   </div>
-   <% if (redirect) { %>
+  <div class="p-3 flex justify-center items-center sm:text-xl md:text-xl lg:text-xl xl:text-xl">
+    p.s. if you don't want to login it's totally fine
+    to just browse, however if you want us to create
+    a playlist for you, you will have to login with your
+    Spotify account
+  </div>
+  <% if (redirect) { %>
   <div class="p-6 flex justify-center items-center sm:text-3xl md:text-3xl lg:text-3xl xl:text-3xl">
     Or proceed anyways&nbsp;
     <a class="py-1 px-2 border-2 border-white rounded-lg hover:bg-green-500 hover:border-green-500 hover:text-neutral-950" href="<%= redirect %>">
