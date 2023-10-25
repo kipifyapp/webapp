@@ -9,6 +9,7 @@ const dotenv = require("dotenv").config();
 const client_id = process.env.CLIENT_ID; // Your client id
 const client_secret = process.env.CLIENT_SECRET; // Your secret
 const redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
+const full_url = process.env.FULL_URL;
 
 const {
     get_track,
@@ -119,15 +120,11 @@ app.get("/generate/profile", async (req, res) => {
         const user = await get_user_profile(access_token);
         const tracks = await generate_from_profile(access_token);
 
-        const protocol = req.protocol; 
-        const host = req.hostname; 
-        const fullUrl = `${protocol}://${host}/` 
-
         const playlist = await create_playlist(
             user.id,
             access_token,
-            "My recommendation playlist",
-            `Playlist created by ${fullUrl} for ${user.display_name}`,
+            "Kipify Mix",
+            `Playlist created by ${full_url} for ${user.display_name}`
         );
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
@@ -144,15 +141,11 @@ app.get("/generate/profile-v2", async (req, res) => {
         const user = await get_user_profile(access_token);
         const tracks = await generate_from_profile_v2(access_token);
 
-        const protocol = req.protocol; 
-        const host = req.hostname; 
-        const fullUrl = `${protocol}://${host}/` 
-
         const playlist = await create_playlist(
             user.id,
             access_token,
-            "My recommendation playlist",
-            `Playlist created by ${fullUrl} for ${user.display_name}`,
+            "Kipify Mix",
+            `Playlist created by ${full_url} for ${user.display_name}`
         );
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
@@ -204,15 +197,11 @@ app.get("/generate/tracks", async (req, res) => {
         const user = await get_user_profile(access_token);
         const tracks = await generate_from_tracks(access_token, trackIds);
 
-        const protocol = req.protocol; 
-        const host = req.hostname; 
-        const fullUrl = `${protocol}://${host}/` 
-
         const playlist = await create_playlist(
             user.id,
             access_token,
-            "My recommendation playlist",
-            `Playlist created by ${fullUrl} for ${user.display_name}`,
+            "Kipify Mix",
+            `Playlist created by ${full_url} for ${user.display_name}`
         );
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
@@ -263,15 +252,11 @@ app.get("/generate/tracks-v2", async (req, res) => {
         const user = await get_user_profile(access_token);
         const tracks = await generate_from_tracks_v2(access_token, trackIds);
 
-        const protocol = req.protocol; 
-        const host = req.hostname; 
-        const fullUrl = `${protocol}://${host}/` 
-
         const playlist = await create_playlist(
             user.id,
             access_token,
-            "My recommendation playlist",
-            `Playlist created by ${fullUrl} for ${user.display_name}`,
+            "Kipify Mix",
+            `Playlist created by ${full_url} for ${user.display_name}`
         );
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
@@ -286,7 +271,8 @@ app.get("/generate/tracks-v2", async (req, res) => {
 
 app.get("/login", async (req, res) => {
     if ("access_token" in req.cookies) {
-        res.redirect("/create");
+        // res.redirect("/create");
+        res.render("login", { redirect: req.query.redirect });
     } else {
         res.render("login", { redirect: req.query.redirect });
     }
