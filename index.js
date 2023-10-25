@@ -108,8 +108,8 @@ app.get("/create/:mode", async (req, res) => {
 
 // deliver
 
-app.get("/deliver/:id", async (req, res) => {
-    res.render(`deliver`, { playlist: req.params.id });
+app.get("/deliver", async (req, res) => {
+    res.render(`deliver`, { playlist: req.query.id });
 });
 
 // generate
@@ -129,7 +129,7 @@ app.get("/generate/profile", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        res.redirect(`/deliver/${playlist.id}`);
+        res.redirect(`/deliver?id=${playlist.id}`);
     } else {
         res.redirect("/login");
     }
@@ -150,7 +150,7 @@ app.get("/generate/profile-v2", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        res.redirect(`/deliver/${playlist.id}`);
+        res.redirect(`/deliver?id=${playlist.id}`);
     } else {
         res.redirect("/login");
     }
@@ -206,7 +206,7 @@ app.get("/generate/tracks", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        res.redirect(`/deliver/${playlist.id}`);
+        res.redirect(`/deliver?id=${playlist.id}`);
     } else {
         res.redirect("/login");
     }
@@ -261,7 +261,7 @@ app.get("/generate/tracks-v2", async (req, res) => {
 
         await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
 
-        res.redirect(`/deliver/${playlist.id}`);
+        res.redirect(`/deliver?id=${playlist.id}`);
     } else {
         res.redirect("/login");
     }
