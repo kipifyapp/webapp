@@ -78,9 +78,7 @@ const scope = "user-read-private user-read-email user-library-read user-top-read
 
 const {
     generate_from_profile,
-    generate_from_profile_v2,
     generate_from_tracks,
-    generate_from_tracks_v2
 } = require("./generator.js");
 
 // home
@@ -127,28 +125,7 @@ app.get("/generate/profile", async (req, res) => {
             `Playlist created by ${full_url} for ${user.display_name}`
         );
 
-        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
-
-        res.redirect(`/deliver?id=${playlist.id}`);
-    } else {
-        res.redirect("/login");
-    }
-});
-
-app.get("/generate/profile-v2", async (req, res) => {
-    if ("access_token" in req.cookies) {
-        const access_token = req.cookies.access_token;
-        const user = await get_user_profile(access_token);
-        const tracks = await generate_from_profile_v2(access_token);
-
-        const playlist = await create_playlist(
-            user.id,
-            access_token,
-            "Kipify Mix",
-            `Playlist created by ${full_url} for ${user.display_name}`
-        );
-
-        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
+        await add_items_to_playlist(playlist.id, access_token, tracks);
 
         res.redirect(`/deliver?id=${playlist.id}`);
     } else {
@@ -158,7 +135,6 @@ app.get("/generate/profile-v2", async (req, res) => {
 
 app.get("/generate/tracks", async (req, res) => {
     if ("access_token" in req.cookies) {
-
         var trackIds = [];
 
         for (let i = 0; i < req.query.tracks.length; i++) {
@@ -204,62 +180,7 @@ app.get("/generate/tracks", async (req, res) => {
             `Playlist created by ${full_url} for ${user.display_name}`
         );
 
-        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
-
-        res.redirect(`/deliver?id=${playlist.id}`);
-    } else {
-        res.redirect("/login");
-    }
-});
-
-app.get("/generate/tracks-v2", async (req, res) => {
-    if ("access_token" in req.cookies) {
-        var trackIds = [];
-
-        for (let i = 0; i < req.query.tracks.length; i++) {
-            const v = req.query.tracks[i];
-            let parsed = url.parse(v);
-            if (parsed.hostname === "spotify.link") {
-                const hrefs = await getHrefsFromLink(parsed.href)
-                if (hrefs.length < 1) return;
-                parsed = url.parse(hrefs[0]);
-
-                if (!parsed.pathname) return;
-                parsed.pathname = parsed.pathname.split("/");
-                if (parsed.pathname[1] !== "track") return;
-                trackIds.push(parsed.pathname[2]);
-            } else if (parsed.hostname === "open.spotify.com") {
-                if (!parsed.pathname) return;
-                parsed.pathname = parsed.pathname.split("/");
-                if (parsed.pathname[1] !== "track") return;
-                trackIds.push(parsed.pathname[2]);
-            }
-        }
-
-        // remove duplicates
-        trackIds = trackIds.filter((track, index) => {
-            let searchIndex = trackIds.findIndex((track2) => {
-                return track2 === track;
-            }); 
-            return searchIndex === index;
-        });
-
-        if (trackIds.length < 1 || trackIds.length > 5) {
-            return res.render("error", { error: "Nope." });
-        }
-
-        const access_token = req.cookies.access_token;
-        const user = await get_user_profile(access_token);
-        const tracks = await generate_from_tracks_v2(access_token, trackIds);
-
-        const playlist = await create_playlist(
-            user.id,
-            access_token,
-            "Kipify Mix",
-            `Playlist created by ${full_url} for ${user.display_name}`
-        );
-
-        await add_items_to_playlist(playlist.id, access_token, tracks.map((track) => track.uri));
+        await add_items_to_playlist(playlist.id, access_token, tracks);
 
         res.redirect(`/deliver?id=${playlist.id}`);
     } else {

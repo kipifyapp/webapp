@@ -11,7 +11,11 @@ async function get_track(track_id, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 // plural: multiple tracks
@@ -22,7 +26,11 @@ async function get_tracks(track_ids, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 // singular: one track
@@ -33,7 +41,11 @@ async function get_track_audio_features(track_id, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 // plural: multiple tracks
@@ -44,7 +56,11 @@ async function get_tracks_audio_features(track_ids, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 async function get_recommendations(access_token, query) {
@@ -54,7 +70,11 @@ async function get_recommendations(access_token, query) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers)
+    }
 }
 
 // singular: one artists
@@ -65,7 +85,11 @@ async function get_artist(artist_id, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 // plural: multiple artists
@@ -76,7 +100,11 @@ async function get_artists(artist_ids, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 // singular: one artists
@@ -87,7 +115,11 @@ async function get_artist_top_tracks(artist_id, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 async function get_top_items(type, access_token, query) {
@@ -102,7 +134,11 @@ async function get_top_items(type, access_token, query) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 async function get_all_top_items(type, access_token, query) {
@@ -137,7 +173,11 @@ async function get_user_profile(access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 async function check_user_saved_tracks(track_ids, access_token) {
@@ -147,7 +187,11 @@ async function check_user_saved_tracks(track_ids, access_token) {
         headers: { "Authorization": `Bearer ${access_token}` }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 async function create_playlist(user_id, access_token, name, description) {
@@ -164,7 +208,11 @@ async function create_playlist(user_id, access_token, name, description) {
         }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 async function add_items_to_playlist(playlist_id, access_token, items) {
@@ -178,7 +226,11 @@ async function add_items_to_playlist(playlist_id, access_token, items) {
         }
     });
 
-    return await response.json();
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
 }
 
 module.exports = {
