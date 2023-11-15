@@ -195,13 +195,14 @@ async function check_user_saved_tracks(track_ids, access_token) {
 }
 
 async function create_playlist(user_id, access_token, name, description) {
+    const data = JSON.stringify({
+        name: name,
+        description: description
+    });
     const response = await fetch(
         `https://api.spotify.com/v1/users/${user_id}/playlists`, {
         method: "POST",
-        body: JSON.stringify({
-            name: name,
-            description: description
-        }),
+        body: data,
         headers: {
             "Authorization": `Bearer ${access_token}`,
             "Content-Type": "application/json"
@@ -216,10 +217,11 @@ async function create_playlist(user_id, access_token, name, description) {
 }
 
 async function add_items_to_playlist(playlist_id, access_token, items) {
+    const data = JSON.stringify({ uris: items });
     const response = await fetch(
         `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`, {
         method: "POST",
-        body: JSON.stringify({ uris: items }),
+        body: data,
         headers: {
             "Authorization": `Bearer ${access_token}`,
             "Content-Type": "application/json"

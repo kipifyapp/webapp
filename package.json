@@ -1,6 +1,6 @@
 {
   "name": "kipify",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Kipify was developed as an open source app which recommends you new songs on Spotify. It started as a final project for Harvard's CS50 Final Project. It aims to help out people trying to find new music to listen to or to find music similar to what they already listen to.",
   "scripts": {
     "dev": "vercel dev",
