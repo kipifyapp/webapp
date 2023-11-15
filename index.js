@@ -34,7 +34,11 @@ function generateRandomString(length) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
-};
+}
+
+function delay(delayInms) {
+    return new Promise(resolve => setTimeout(resolve, delayInms));
+}
 
 // for spotify.link domains
 async function getHrefsFromLink(link) {
@@ -116,7 +120,9 @@ app.get("/generate/profile", async (req, res) => {
     if ("access_token" in req.cookies) {
         const access_token = req.cookies.access_token;
         const user = await get_user_profile(access_token);
+        let delayres = await delay(3000);
         const tracks = await generate_from_profile(access_token);
+        delayres = await delay(3000);
 
         const playlist = await create_playlist(
             user.id,
@@ -124,6 +130,7 @@ app.get("/generate/profile", async (req, res) => {
             "Kipify Mix",
             `Playlist created by ${full_url} for ${user.display_name}`
         );
+        delayres = await delay(3000);
 
         await add_items_to_playlist(playlist.id, access_token, tracks);
 
@@ -171,7 +178,9 @@ app.get("/generate/tracks", async (req, res) => {
 
         const access_token = req.cookies.access_token;
         const user = await get_user_profile(access_token);
+        let delayres = await delay(3000);
         const tracks = await generate_from_tracks(access_token, trackIds);
+        delayres = await delay(3000);
 
         const playlist = await create_playlist(
             user.id,
@@ -179,6 +188,7 @@ app.get("/generate/tracks", async (req, res) => {
             "Kipify Mix",
             `Playlist created by ${full_url} for ${user.display_name}`
         );
+        delayres = await delay(3000);
 
         await add_items_to_playlist(playlist.id, access_token, tracks);
 
