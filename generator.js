@@ -74,7 +74,7 @@ async function generate_tracks(access_token, tracks_data) {
                 suggested.set(track.uri, 1);
             }
         });
-        let delayres = await delay(3000);
+        let delayres = await delay(100);
     }
 
     let top = 0;
@@ -112,7 +112,7 @@ async function generate_tracks(access_token, tracks_data) {
 
 async function generate_from_profile(access_token) {
     const tracks_data = (await get_top_items("tracks", access_token, { "time_range": "short_term", "limit": 5 })).items;
-    let delayres = await delay(3000);
+    let delayres = await delay(100);
     const recommendations = await generate_tracks(access_token, tracks_data);
 
     return recommendations;
@@ -120,7 +120,7 @@ async function generate_from_profile(access_token) {
 
 async function generate_from_tracks(access_token, track_ids) {
     const tracks_data = (await get_tracks(track_ids, access_token)).tracks;
-    let delayres = await delay(3000);
+    let delayres = await delay(100);
     const recommendations = await generate_tracks(access_token, tracks_data);
 
     return recommendations;
