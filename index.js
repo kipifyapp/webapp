@@ -12,15 +12,6 @@ const redirect_uri = process.env.REDIRECT_URI; // Your redirect uri
 const full_url = process.env.FULL_URL;
 
 const {
-    get_track,
-    get_tracks,
-    get_track_audio_features,
-    get_tracks_audio_features,
-    get_recommendations,
-    get_artist,
-    get_artists,
-    get_top_items,
-    get_all_top_items,
     get_user_profile,
     create_playlist,
     add_items_to_playlist
@@ -119,18 +110,18 @@ app.get("/deliver", async (req, res) => {
 app.get("/generate/profile", async (req, res) => {
     if ("access_token" in req.cookies) {
         const access_token = req.cookies.access_token;
-        const user = await get_user_profile(access_token);
-        let delayres = await delay(100);
+        const user_id = req.cookies.user_id;
+        const user_display_name = req.cookies.user_display_name;
         const tracks = await generate_from_profile(access_token);
-        delayres = await delay(100);
+        let delayres = await delay(200);
 
         const playlist = await create_playlist(
-            user.id,
+            user_id,
             access_token,
             "Kipify Mix",
-            `Playlist created by ${full_url} for ${user.display_name}`
+            `Playlist created by ${full_url} for ${user_display_name}`
         );
-        delayres = await delay(100);
+        delayres = await delay(200);
 
         await add_items_to_playlist(playlist.id, access_token, tracks);
 
@@ -177,18 +168,18 @@ app.get("/generate/tracks", async (req, res) => {
         }
 
         const access_token = req.cookies.access_token;
-        const user = await get_user_profile(access_token);
-        let delayres = await delay(100);
+        const user_id = req.cookies.user_id;
+        const user_display_name = req.cookies.user_display_name;
         const tracks = await generate_from_tracks(access_token, trackIds);
-        delayres = await delay(100);
+        let delayres = await delay(200);
 
         const playlist = await create_playlist(
-            user.id,
+            user_id,
             access_token,
             "Kipify Mix",
-            `Playlist created by ${full_url} for ${user.display_name}`
+            `Playlist created by ${full_url} for ${user_display_name}`
         );
-        delayres = await delay(100);
+        delayres = await delay(200);
 
         await add_items_to_playlist(playlist.id, access_token, tracks);
 
@@ -263,10 +254,17 @@ app.get("/callback", async function(req, res) {
             json: true
         };
 
-        request.post(authOptions, function(error, response, body) {
+        request.post(authOptions, async function(error, response, body) {
             if (!error && response.statusCode === 200) {
                 res.cookie("access_token", body.access_token, {
                     maxAge: 60 * 60 * 1000 // 1 hour
+                });
+                const user = await get_user_profile(body.access_token);
+                res.cookie("user_id", user.id, {
+                    maxAge: 60 * 60 * 1000
+                });
+                res.cookie("user_display_name", user.display_name, {
+                    maxAge: 60 * 60 * 1000
                 });
                 res.redirect("/create");
             } else {

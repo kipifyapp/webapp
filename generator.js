@@ -1,18 +1,8 @@
 const {
-    get_track,
     get_tracks,
-    get_track_audio_features,
     get_tracks_audio_features,
     get_recommendations,
-    get_artist,
-    get_artists,
-    get_artist_top_tracks,
     get_top_items,
-    get_all_top_items,
-    get_user_profile,
-    check_user_saved_tracks,
-    create_playlist,
-    add_items_to_playlist
 } = require("./spotify-api.js");
 
 function shuffle_array(array) {
