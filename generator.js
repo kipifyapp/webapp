@@ -27,7 +27,7 @@ const MAX = 50;
 async function track(access_token, track_data, track_features) {
     const options = {
         "limit": 99,
-        "seed_artists": track_data.artists[0].id,
+        // "seed_artists": track_data.artists[0].id,
         "seed_tracks": [track_data.id],
         "target_acousticness": track_features.acousticness,
         "target_danceability": track_features.danceability,
@@ -37,7 +37,7 @@ async function track(access_token, track_data, track_features) {
         "target_liveness": track_features.liveness,
         "target_loudness": track_features.loudness,
         "target_mode": track_features.mode,
-        "target_popularity": track_data.popularity,
+        // "target_popularity": track_data.popularity,
         "target_speechiness": track_features.speechiness,
         "target_tempo": track_features.tempo,
         "target_time_signature": track_features.time_signature,
