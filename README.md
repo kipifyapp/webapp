@@ -11,3 +11,7 @@ plus I myself wouldn't pay for a service like this.
 ### Motivation
 
 I needed something for the [CS50](https://cs50.harvard.edu/x/) final project.
+
+#### Github Branching and Tags
+
+It's all completely messed, gonna create a new repository in the future and archive this one.
