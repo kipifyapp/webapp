@@ -12,6 +12,10 @@ plus I myself wouldn't pay for a service like this.
 
 I needed something for the [CS50](https://cs50.harvard.edu/x/) final project.
 
+### Potential Improvement
+
+Instead of randomising, sort the generated tracks, based on how similar they are to the target tracks.
+
 #### Github Branching and Tags
 
 It's all completely messed, gonna create a new repository in the future and archive this one.
