@@ -18,6 +18,59 @@ function shuffle_array(array) {
     return shuffled;
 }
 
+function sort_tracks(target_tracks, tracks) {
+    var target_features = {
+        "acousticness": 0,
+        "danceability": 0,
+        "energy": 0,
+        "instrumentalness": 0,
+        "key": 0,
+        "liveness": 0,
+        "loudness": 0,
+        "mode": 0,
+        // "popularity": 0,
+        "speechiness": 0,
+        "tempo": 0,
+        "time_signature": 0,
+        "valence": 0
+    };
+
+
+    // calclate target features
+    const number = target_tracks.length;
+
+    target_tracks.forEach((v, i) => {
+        Object.keys(v).forEach((k2) => {
+            if (target_features[k2] !== undefined) {
+                target_features[k2] += v[k2];
+            }
+        });
+    });
+
+    Object.keys(target_features).forEach((k) => {
+        target_features[k] /= number;
+    });    
+
+    // assign score
+    // root mean squared
+    tracks.forEach((v, i) => {
+        // track
+        var score = 0;
+        Object.keys(v).forEach((k3) => {
+            if (target_features[k3] !== undefined) {
+                // relative deviation
+                score += Math.pow(( Math.abs(v[k3] - target_features[k3]) / target_features[k3] ), 2);
+            }
+        });
+        score = Math.sqrt(score / Object.keys(target_features).length);
+        v.SCORE = score;
+    });
+    
+    tracks.sort((a, b) => a.SCORE - b.SCORE);
+
+    return tracks;
+}
+
 function delay(delayInms) {
     return new Promise(resolve => setTimeout(resolve, delayInms));
 }
@@ -50,52 +103,87 @@ async function track(access_token, track_data, track_features) {
 }
 
 async function generate_tracks(access_token, tracks_data) {
-    const tracks = [];
-    const suggested = new Map();
+    // const suggested = new Map();
+    var suggested = [];
 
     let tracks_features = (await get_tracks_audio_features(tracks_data.map((track) => track.id), access_token)).audio_features;
 
     for (let i = 0; i < tracks_data.length; i++) {
         let recommendations = await track(access_token, tracks_data[i], tracks_features[i]);
-        recommendations.map((track) => {
-            if (suggested.get(track.uri)) {
-                suggested.set(track.uri, suggested.get(track.uri) + 1);
-            } else {
-                suggested.set(track.uri, 1);
-            }
+        let recommendations_features = (await get_tracks_audio_features(recommendations.map((track) => track.id), access_token)).audio_features;
+
+        recommendations_features.map((track) => {
+            // if (suggested.get(track.uri)) {
+            //     suggested.set(track.uri, {
+            //         quantity: suggested.get(track.uri).quantity + 1,
+            //         track: track
+            //     });
+            // } else {
+            //     suggested.set(track.uri, {
+            //         quantity: 1,
+            //         track: track
+            //     });
+            // }
+            suggested.push(track);
         });
         let delayres = await delay(100);
     }
 
-    let top = 0;
-    const suggested2 = new Map();
+    suggested = sort_tracks(tracks_features, suggested);
 
-    suggested.forEach((v, k) => {
-        if (suggested2.get(v)) {
-            let arr = suggested2.get(v);
-            arr[arr.length] = k;
-            suggested2.set(v, arr);
-        } else {
-            suggested2.set(v, [k]);
-        }
-        if (v > top) {
-            top = v;
-        }
-    });
-
-    // randomise
-    suggested2.forEach((v, k) => {
-        suggested2.set(k, shuffle_array(v));
-    });
-
-    for (let i = top; i > 0; i--) {
-        suggested2.get(i).map((track) => {
-            if (tracks.length === MAX) {
-                return;
+    suggested.forEach((track, i) => {
+        let duplicate = false;
+        for (let i2 = 0; i2 < suggested.length; i2++) {
+            if (suggested[i2] === suggested[i].uri && i != i2) {
+                duplicate = true
             }
-            tracks.push(track);
-        });
+        }
+        if (!duplicate) {
+            suggested[i] = track.uri;
+        }
+    });
+
+    var tracks = [];
+
+    for (let i = 0; i < suggested.length; i++) {
+        if (typeof suggested[i] !== "string") {
+            continue;
+        }
+        if (tracks.length === MAX) {
+            break;
+        }
+        tracks[tracks.length] = suggested[i];
     }
+
+    // let top = 0;
+    // const suggested2 = new Map();
+
+    // suggested.forEach((v, k) => {
+    //     if (suggested2.has(v.quantity)) {
+    //         let arr = suggested2.get(v.quantity);
+    //         arr[arr.length] = v.track;
+    //         suggested2.set(v.quantity, arr);
+    //     } else {
+    //         suggested2.set(v.quantity, [v.track]);
+    //     }
+    //     if (v.quantity > top) {
+    //         top = v.quantity;
+    //     }
+    // });
+
+    // // randomise
+    // suggested2.forEach((v, k) => {
+    //     suggested2.set(k, sort_tracks(tracks_features, v));
+    // });
+
+    // for (let i = top; i > 0; i--) {
+    //     suggested2.get(i).map((track) => {
+    //         if (tracks.length === MAX) {
+    //             return;
+    //         }
+    //         tracks.push(track.uri);
+    //     });
+    // }
 
     return tracks;
 }
