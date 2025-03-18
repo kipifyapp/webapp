@@ -59,14 +59,16 @@ function sort_tracks(target_tracks, tracks) {
         Object.keys(v).forEach((k3) => {
             if (target_features[k3] !== undefined) {
                 // relative deviation
-                score += Math.pow(( Math.abs(v[k3] - target_features[k3]) / target_features[k3] ), 2);
+                if (target_features[k3] === 0) {
+                    score += v[k3] * 1000;
+                } else {
+                    score += Math.pow(( Math.abs(v[k3] - target_features[k3]) / target_features[k3] ), 2);
+                }
             }
         });
         score = Math.sqrt(score / Object.keys(target_features).length);
         v.SCORE = score;
     });
-    
-    tracks.sort((a, b) => a.SCORE - b.SCORE);
 
     return tracks;
 }
@@ -112,6 +114,8 @@ async function generate_tracks(access_token, tracks_data) {
         let recommendations = await track(access_token, tracks_data[i], tracks_features[i]);
         let recommendations_features = (await get_tracks_audio_features(recommendations.map((track) => track.id), access_token)).audio_features;
 
+        let temp_suggested = [];
+
         recommendations_features.map((track) => {
             // if (suggested.get(track.uri)) {
             //     suggested.set(track.uri, {
@@ -124,12 +128,20 @@ async function generate_tracks(access_token, tracks_data) {
             //         track: track
             //     });
             // }
-            suggested.push(track);
+            track.parent_id = tracks_data[i].id;
+            temp_suggested.push(track);
         });
+
+        temp_suggested = sort_tracks([tracks_features[i]], temp_suggested);
+
+        temp_suggested.forEach((track) => {
+            suggested.push(track);
+        })
+
         let delayres = await delay(100);
     }
 
-    suggested = sort_tracks(tracks_features, suggested);
+    suggested.sort((a, b) => a.SCORE - b.SCORE);
 
     suggested.forEach((track, i) => {
         let duplicate = false;
