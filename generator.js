@@ -1,9 +1,80 @@
 const {
+    get_artists,
     get_tracks,
     get_tracks_audio_features,
     get_recommendations,
     get_top_items,
 } = require("./spotify-api.js");
+
+const AUDIO_FEATURES = {
+    "acousticness": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    },
+    "danceability": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    },
+    "energy": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    },
+    "instrumentalness": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    },
+    "key": {
+        "range_min": 0,
+        "range_max": 11,
+        "type": "integer"
+    },
+    "liveness": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    },
+    "loudness": {
+        "range_min": -10000,
+        "range_max": 10000,
+        "type": "float"
+    },
+    "mode": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "integer"
+    },
+    // "popularity": {
+    //     "range_min": 0,
+    //     "range_max": 100,
+    //     "type": "integer"
+    // },
+    "speechiness": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    },
+    "tempo": {
+        "range_min": -10000,
+        "range_max": 10000,
+        "type": "float"
+    },
+    "time_signature": {
+        "range_min": 0,
+        "range_max": 11,
+        "type": "integer"
+    },
+    "valence": {
+        "range_min": 0,
+        "range_max": 1,
+        "type": "float"
+    }
+}
+
+const TOLERANCE = 4;
 
 function shuffle_array(array) {
     const shuffled = [];
@@ -41,7 +112,7 @@ function sort_tracks(target_tracks, tracks) {
 
     target_tracks.forEach((v, i) => {
         Object.keys(v).forEach((k2) => {
-            if (target_features[k2] !== undefined) {
+            if (AUDIO_FEATURES[k2] !== undefined) {
                 target_features[k2] += v[k2];
             }
         });
@@ -79,29 +150,54 @@ function delay(delayInms) {
 
 const MAX = 50;
 
-async function track(access_token, track_data, track_features) {
+async function track(access_token, track_data, track_features, artist_genres) {
     const options = {
         "limit": 99,
-        // "seed_artists": track_data.artists[0].id,
+        "seed_artists": track_data.artists[0].id,
         "seed_tracks": [track_data.id],
-        "target_acousticness": track_features.acousticness,
-        "target_danceability": track_features.danceability,
-        "target_energy": track_features.energy,
-        "target_instrumentalness": track_features.instrumentalness,
-        "target_key": track_features.key,
-        "target_liveness": track_features.liveness,
-        "target_loudness": track_features.loudness,
-        "target_mode": track_features.mode,
-        // "target_popularity": track_data.popularity,
-        "target_speechiness": track_features.speechiness,
-        "target_tempo": track_features.tempo,
-        "target_time_signature": track_features.time_signature,
-        "target_valence": track_features.valence
     }
 
-    const recommendations = (await get_recommendations(access_token, options)).tracks;
+    if (artist_genres.length > 0) {
+        options["seed_genres"] = artist_genres;
+    }
 
-    return recommendations;
+    Object.keys(AUDIO_FEATURES).forEach((k) => {
+        // if (AUDIO_FEATURES[k]["type"] === "integer") {
+        //     console.log(k);
+        //     return;
+        // }
+
+        let feature = track_features[k];
+        let max = (1 + TOLERANCE) * feature;
+        let min = (1 - TOLERANCE) * feature;
+ 
+        options["target_" + k] = feature;
+
+        if (max > AUDIO_FEATURES[k]["range_max"]) {
+            max = AUDIO_FEATURES[k]["range_max"]
+        }
+
+        if (min < AUDIO_FEATURES[k]["range_min"]) {
+            min = AUDIO_FEATURES[k]["range_min"]
+        }
+
+        if (AUDIO_FEATURES[k]["type"] === "integer") {
+            max = Math.round(max);
+            min = Math.round(min);
+        }
+
+        // options["min_" + k] = min;
+        // options["max_" + k] = max;
+    });
+
+
+    // console.log(track_data.album);
+
+    const recommendations = (await get_recommendations(access_token, options));
+
+    console.log(recommendations)
+
+    return recommendations.tracks;
 }
 
 async function generate_tracks(access_token, tracks_data) {
@@ -110,11 +206,37 @@ async function generate_tracks(access_token, tracks_data) {
 
     let tracks_features = (await get_tracks_audio_features(tracks_data.map((track) => track.id), access_token)).audio_features;
 
+    let artist_ids = [];
+
     for (let i = 0; i < tracks_data.length; i++) {
-        let recommendations = await track(access_token, tracks_data[i], tracks_features[i]);
+        let duplicate = false;
+        for (let i2 = 0; i2 < artist_ids.length; i2++) {
+            if (artist_ids[i2] === tracks_data[i].artists[0].id) {
+                duplicate = true;
+                break;
+            }
+        }
+        if (!duplicate) {
+            artist_ids.push(tracks_data[i].artists[0].id);
+        }
+    }
+
+    var artists_data = (await get_artists(artist_ids, access_token)).artists;
+
+    var artists_genres = new Map();
+
+    artists_data.forEach((artist) => {
+        artists_genres.set(artist.id, artist.genres);
+    });
+
+    for (let i = 0; i < tracks_data.length; i++) {
+        let recommendations = await track(access_token, tracks_data[i], tracks_features[i], artists_genres.get(tracks_data[i].artists[0].id));
         let recommendations_features = (await get_tracks_audio_features(recommendations.map((track) => track.id), access_token)).audio_features;
 
         let temp_suggested = [];
+
+        console.log(recommendations);
+        console.log(recommendations_features);
 
         recommendations_features.map((track) => {
             // if (suggested.get(track.uri)) {
