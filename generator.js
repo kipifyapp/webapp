@@ -38,7 +38,7 @@ const AUDIO_FEATURES = {
         "type": "float"
     },
     "loudness": {
-        "range_min": -10000,
+        "range_min": 0,
         "range_max": 10000,
         "type": "float"
     },
@@ -47,18 +47,18 @@ const AUDIO_FEATURES = {
         "range_max": 1,
         "type": "integer"
     },
-    // "popularity": {
-    //     "range_min": 0,
-    //     "range_max": 100,
-    //     "type": "integer"
-    // },
+    "popularity": {
+        "range_min": 0,
+        "range_max": 100,
+        "type": "integer"
+    },
     "speechiness": {
         "range_min": 0,
         "range_max": 1,
         "type": "float"
     },
     "tempo": {
-        "range_min": -10000,
+        "range_min": 0,
         "range_max": 10000,
         "type": "float"
     },
@@ -74,7 +74,7 @@ const AUDIO_FEATURES = {
     }
 }
 
-const TOLERANCE = 4;
+const TOLERANCE = 0.6;
 
 function shuffle_array(array) {
     const shuffled = [];
@@ -99,13 +99,12 @@ function sort_tracks(target_tracks, tracks) {
         "liveness": 0,
         "loudness": 0,
         "mode": 0,
-        // "popularity": 0,
+        "popularity": 0,
         "speechiness": 0,
         "tempo": 0,
         "time_signature": 0,
         "valence": 0
     };
-
 
     // calclate target features
     const number = target_tracks.length;
@@ -121,6 +120,7 @@ function sort_tracks(target_tracks, tracks) {
     Object.keys(target_features).forEach((k) => {
         target_features[k] /= number;
     });    
+    target_features["popularity"] = 100;
 
     // assign score
     // root mean squared
@@ -152,7 +152,7 @@ const MAX = 50;
 
 async function track(access_token, track_data, track_features, artist_genres) {
     const options = {
-        "limit": 99,
+        "limit": 100,
         "seed_artists": track_data.artists[0].id,
         "seed_tracks": [track_data.id],
     }
@@ -167,10 +167,10 @@ async function track(access_token, track_data, track_features, artist_genres) {
         //     return;
         // }
 
-        let feature = track_features[k];
-        let max = (1 + TOLERANCE) * feature;
-        let min = (1 - TOLERANCE) * feature;
- 
+        let feature = Math.abs(track_features[k]);
+        let max = Math.abs((1 + TOLERANCE) * feature);
+        let min = Math.abs((1 - TOLERANCE) * feature);
+
         options["target_" + k] = feature;
 
         if (max > AUDIO_FEATURES[k]["range_max"]) {
@@ -186,16 +186,18 @@ async function track(access_token, track_data, track_features, artist_genres) {
             min = Math.round(min);
         }
 
-        // options["min_" + k] = min;
-        // options["max_" + k] = max;
+        if (k == "popularity") {
+            options["target_" + k] = track_data[k];
+        }
+        // if (k != "popularity") {
+        //     options["min_" + k] = min;
+        //     options["max_" + k] = max;
+        // }
     });
 
-
-    // console.log(track_data.album);
-
     const recommendations = (await get_recommendations(access_token, options));
-
-    console.log(recommendations)
+    // console.log("generated track recommendations audio features", options, track_features, track_data)
+    // console.log("generated track recommendations", recommendations)
 
     return recommendations.tracks;
 }
@@ -235,8 +237,8 @@ async function generate_tracks(access_token, tracks_data) {
 
         let temp_suggested = [];
 
-        console.log(recommendations);
-        console.log(recommendations_features);
+        // console.log("Recommendations", recommendations);
+        // console.log("Recommendations features", recommendations_features);
 
         recommendations_features.map((track) => {
             // if (suggested.get(track.uri)) {
@@ -288,36 +290,6 @@ async function generate_tracks(access_token, tracks_data) {
         }
         tracks[tracks.length] = suggested[i];
     }
-
-    // let top = 0;
-    // const suggested2 = new Map();
-
-    // suggested.forEach((v, k) => {
-    //     if (suggested2.has(v.quantity)) {
-    //         let arr = suggested2.get(v.quantity);
-    //         arr[arr.length] = v.track;
-    //         suggested2.set(v.quantity, arr);
-    //     } else {
-    //         suggested2.set(v.quantity, [v.track]);
-    //     }
-    //     if (v.quantity > top) {
-    //         top = v.quantity;
-    //     }
-    // });
-
-    // // randomise
-    // suggested2.forEach((v, k) => {
-    //     suggested2.set(k, sort_tracks(tracks_features, v));
-    // });
-
-    // for (let i = top; i > 0; i--) {
-    //     suggested2.get(i).map((track) => {
-    //         if (tracks.length === MAX) {
-    //             return;
-    //         }
-    //         tracks.push(track.uri);
-    //     });
-    // }
 
     return tracks;
 }
