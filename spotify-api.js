@@ -64,6 +64,9 @@ async function get_tracks_audio_features(track_ids, access_token) {
 }
 
 async function get_recommendations(access_token, query) {
+
+    console.log(`https://api.spotify.com/v1/recommendations?${querystring.stringify(query)}`);
+
     const response = await fetch(
         `https://api.spotify.com/v1/recommendations?${querystring.stringify(query)}`, {
         method: "GET",
@@ -121,6 +124,35 @@ async function get_artist_top_tracks(artist_id, access_token) {
         return await console.error(response.status, response, response.headers);
     }
 }
+
+async function get_album(album_id, access_token) {
+    const response = await fetch(
+        `https://api.spotify.com/v1/albums/${album_id}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${access_token}` }
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
+}
+
+async function get_albums(album_ids, access_token) {
+    const response = await fetch(
+        `https://api.spotify.com/v1/albums?ids=${album_ids.join("%2C")}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${access_token}` }
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+        return await response.json();
+    } else {
+        return await console.error(response.status, response, response.headers);
+    }
+}
+
 
 async function get_top_items(type, access_token, query) {
     let url = `https://api.spotify.com/v1/me/top/${type}`;
@@ -244,6 +276,8 @@ module.exports = {
     get_artist,
     get_artists,
     get_artist_top_tracks,
+    get_album,
+    get_albums,
     get_top_items,
     get_all_top_items,
     get_user_profile,
